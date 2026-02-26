@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            padding: 40px;
+            background: #f5f5f5;
+        }
+        .wrapper {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+        }
+        .dice-info {
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 16px;
+            font-size: 13px;
+            width: 300px;
+            max-width: 300px;
+        }
+        .dice-info h3 {
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+        .dice-info table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .dice-info td {
+            padding: 3px 6px;
+            border-bottom: 1px solid #eee;
+        }
+        .dice-info td:first-child {
+            font-weight: bold;
+            text-align: center;
+        }
+        .main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        .container {
+            display: flex;
+            gap: 60px;
+        }
+        .column {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .column-label {
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 4px;
+            font-size: 15px;
+        }
+        select {
+            padding: 8px 12px;
+            font-size: 16px;
+            min-width: 200px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: #fff;
+        }
+        #calc-btn {
+            padding: 12px 32px;
+            font-size: 16px;
+            font-weight: bold;
+            background: #4a90d9;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        #calc-btn:hover { background: #3a7bc8; }
+        #result {
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 20px 32px;
+            font-size: 18px;
+            text-align: center;
+            min-width: 300px;
+            display: none;
+        }
+        .win-a { color: #c0392b; font-weight: bold; }
+        .win-b { color: #2980b9; font-weight: bold; }
+        .outcomes-table {
+            margin-top: 12px;
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        .outcomes-table th {
+            border-bottom: 2px solid #ccc;
+            padding: 4px 8px;
+            text-align: left;
+        }
+        .outcomes-table td {
+            border-bottom: 1px solid #eee;
+            padding: 3px 8px;
+        }
+        .outcomes-table td:last-child {
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="dice-info">
+            <h3>Кубик d12 (1-6 &times;2)</h3>
+            <table>
+                <tr><td>1</td><td>Герой</td></tr>
+                <tr><td>1</td><td>Герой</td></tr>
+                <tr><td>2</td><td>Слон</td></tr>
+                <tr><td>2</td><td>Конь</td></tr>
+                <tr><td>3</td><td>Слон</td></tr>
+                <tr><td>3</td><td>Воин</td></tr>
+                <tr><td>4</td><td>Конь</td></tr>
+                <tr><td>4</td><td>Слон</td></tr>
+                <tr><td>5</td><td>Воин</td></tr>
+                <tr><td>5</td><td>Конь</td></tr>
+                <tr><td>6</td><td>Воин</td></tr>
+                <tr><td>6</td><td>Воин</td></tr>
+            </table>
+
+            <h3 style="margin-top:14px;">Бонусы картинок</h3>
+            <p><b>Герой</b> &mdash; перебросить 1 кубик с наименьшим числом. Если снова выпадет герой &mdash; перебрасывает ещё раз.</p>
+            <p style="margin-top:6px;"><b>Воин</b> &mdash; +1 к общей сумме урона группы за каждый активированный символ воина.</p>
+            <p style="margin-top:6px;"><b>Конь</b> &mdash; +2 к общей сумме урона группы за каждый активированный символ коня.</p>
+            <p style="margin-top:6px;"><b>Слон</b> &mdash; число на кубике обнуляется (не идёт в урон), но отнимает 1 убийство от урона противника (щит на 5 единиц урона).</p>
+            <p style="margin-top:8px;font-size:12px;color:#666;">
+                Бонус активируется = min(выпавших картинок данного типа, юнитов этого типа в группе).
+            </p>
+
+            <h3 style="margin-top:14px;">Правила боя</h3>
+            <p>Каждый юнит бросает 1 кубик d12 (числа 1-6).</p>
+            <p style="margin-top:6px;">Суммы бросков считаются для каждой группы отдельно.</p>
+            <p style="margin-top:6px;">За каждые 5 очков суммы &mdash; погибает 1 юнит <b>противника</b> (самый слабый первым).</p>
+            <p style="margin-top:6px;">Потери применяются одновременно. Если обе группы потеряли всех &mdash; ничья.</p>
+            <p style="margin-top:6px;"><b>Сила юнитов</b> (слабый гибнет первым): Воин &lt; Конь &lt; Слон &lt; Герой.</p>
+        </div>
+
+        <div class="main">
+            <div class="container">
+                <div class="column">
+                    <div class="column-label">Группа A</div>
+                    <select><option value=""></option><option value="hero">Герой</option><option value="warrior">Воин</option><option value="elephant">Слон</option><option value="horse">Конь</option></select>
+                    <select><option value=""></option><option value="hero">Герой</option><option value="warrior">Воин</option><option value="elephant">Слон</option><option value="horse">Конь</option></select>
+                    <select><option value=""></option><option value="hero">Герой</option><option value="warrior">Воин</option><option value="elephant">Слон</option><option value="horse">Конь</option></select>
+                    <select><option value=""></option><option value="hero">Герой</option><option value="warrior">Воин</option><option value="elephant">Слон</option><option value="horse">Конь</option></select>
+                </div>
+                <div class="column">
+                    <div class="column-label">Группа B</div>
+                    <select><option value=""></option><option value="hero">Герой</option><option value="warrior">Воин</option><option value="elephant">Слон</option><option value="horse">Конь</option></select>
+                    <select><option value=""></option><option value="hero">Герой</option><option value="warrior">Воин</option><option value="elephant">Слон</option><option value="horse">Конь</option></select>
+                    <select><option value=""></option><option value="hero">Герой</option><option value="warrior">Воин</option><option value="elephant">Слон</option><option value="horse">Конь</option></select>
+                    <select><option value=""></option><option value="hero">Герой</option><option value="warrior">Воин</option><option value="elephant">Слон</option><option value="horse">Конь</option></select>
+                </div>
+            </div>
+            <button id="calc-btn">Рассчитать шансы</button>
+            <div id="result"></div>
+        </div>
+    </div>
+    <script src="calculator.js"></script>
+</body>
+</html>
