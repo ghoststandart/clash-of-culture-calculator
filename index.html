@@ -113,6 +113,84 @@
         .outcomes-table td:last-child {
             text-align: right;
         }
+        .bonuses {
+            display: flex;
+            gap: 60px;
+            margin-top: 8px;
+        }
+        .bonus-column {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .bonus-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+        }
+        .bonus-row label {
+            white-space: nowrap;
+        }
+        .bonus-row input {
+            width: 50px;
+            padding: 4px 6px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            body {
+                padding: 16px;
+            }
+            .wrapper {
+                flex-direction: column-reverse;
+                gap: 20px;
+            }
+            .dice-info {
+                width: 100%;
+                max-width: 100%;
+            }
+            .main {
+                width: 100%;
+            }
+            .container {
+                gap: 16px;
+                width: 100%;
+            }
+            .column {
+                flex: 1;
+                min-width: 0;
+            }
+            select {
+                width: 100%;
+                min-width: unset;
+            }
+            #calc-btn {
+                width: 100%;
+            }
+            #result {
+                min-width: unset;
+                width: 100%;
+                padding: 16px;
+            }
+            .bonuses {
+                gap: 16px;
+            }
+            .bonus-column {
+                flex: 1;
+                min-width: 0;
+            }
+            .bonus-row input {
+                width: 40px;
+            }
+            .bonus-row label {
+                font-size: 11px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -166,6 +244,22 @@
                     <select><option value=""></option><option value="hero">Герой</option><option value="warrior">Воин</option><option value="elephant">Слон</option><option value="horse">Конь</option></select>
                     <select><option value=""></option><option value="hero">Герой</option><option value="warrior">Воин</option><option value="elephant">Слон</option><option value="horse">Конь</option></select>
                     <select><option value=""></option><option value="hero">Герой</option><option value="warrior">Воин</option><option value="elephant">Слон</option><option value="horse">Конь</option></select>
+                </div>
+            </div>
+            <div class="bonuses">
+                <div class="bonus-column">
+                    <div class="column-label" style="font-size:13px;">Бонусы A</div>
+                    <div class="bonus-row"><input type="number" id="a-extra-dmg-first" value="0" min="0"> <label>доп. урон (1 раунд)</label></div>
+                    <div class="bonus-row"><input type="number" id="a-extra-dmg-every" value="0" min="0"> <label>доп. урон (каждый раунд)</label></div>
+                    <div class="bonus-row"><input type="number" id="a-extra-dice" value="0" min="0"> <label>доп. кубики (1 раунд)</label></div>
+                    <div class="bonus-row"><input type="number" id="a-skip-dmg" value="0" min="0"> <label>скип урона (1 раунд)</label></div>
+                </div>
+                <div class="bonus-column">
+                    <div class="column-label" style="font-size:13px;">Бонусы B</div>
+                    <div class="bonus-row"><input type="number" id="b-extra-dmg-first" value="0" min="0"> <label>доп. урон (1 раунд)</label></div>
+                    <div class="bonus-row"><input type="number" id="b-extra-dmg-every" value="0" min="0"> <label>доп. урон (каждый раунд)</label></div>
+                    <div class="bonus-row"><input type="number" id="b-extra-dice" value="0" min="0"> <label>доп. кубики (1 раунд)</label></div>
+                    <div class="bonus-row"><input type="number" id="b-skip-dmg" value="0" min="0"> <label>скип урона (1 раунд)</label></div>
                 </div>
             </div>
             <button id="calc-btn">Рассчитать шансы</button>

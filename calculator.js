@@ -36,13 +36,31 @@ function countType(arr, type) {
 }
 
 // Один раунд с бонусами
-function playRound(groupA, groupB) {
-    const sumA = resolveGroupRoll(groupA);
-    const sumB = resolveGroupRoll(groupB);
+function playRound(groupA, groupB, roundNum, bonusA, bonusB) {
+    const isFirst = roundNum === 1;
+    const extraDiceA = isFirst ? bonusA.extraDice : 0;
+    const extraDiceB = isFirst ? bonusB.extraDice : 0;
+
+    const sumA = resolveGroupRoll(groupA, extraDiceA);
+    const sumB = resolveGroupRoll(groupB, extraDiceB);
+
+    // Доп. урон
+    if (isFirst) {
+        sumA.damage += bonusA.extraDmgFirst;
+        sumB.damage += bonusB.extraDmgFirst;
+    }
+    sumA.damage += bonusA.extraDmgEvery;
+    sumB.damage += bonusB.extraDmgEvery;
 
     // Слоны дают щит: -5 урона противнику за каждый активированный слон
-    const killsFromA = Math.max(0, Math.floor(sumA.damage / 5) - sumB.shields);
-    const killsFromB = Math.max(0, Math.floor(sumB.damage / 5) - sumA.shields);
+    let killsFromA = Math.max(0, Math.floor(sumA.damage / 5) - sumB.shields);
+    let killsFromB = Math.max(0, Math.floor(sumB.damage / 5) - sumA.shields);
+
+    // Скип урона в первом раунде
+    if (isFirst) {
+        killsFromA = Math.max(0, killsFromA - bonusB.skipDmg);
+        killsFromB = Math.max(0, killsFromB - bonusA.skipDmg);
+    }
 
     const newA = removeWeakest(groupA, killsFromB);
     const newB = removeWeakest(groupB, killsFromA);
@@ -51,12 +69,13 @@ function playRound(groupA, groupB) {
 }
 
 // Бросок кубиков для группы с применением бонусов
-function resolveGroupRoll(group) {
+function resolveGroupRoll(group, extraDice) {
     if (group.length === 0) return { damage: 0, shields: 0 };
 
-    // Каждый юнит бросает кубик
+    // Каждый юнит бросает кубик + доп. кубики
     let rolls = [];
-    for (let i = 0; i < group.length; i++) {
+    const totalDice = group.length + (extraDice || 0);
+    for (let i = 0; i < totalDice; i++) {
         rolls.push(rollDice());
     }
 
@@ -159,13 +178,15 @@ function keyToLabel(key) {
 }
 
 // Симуляция одного боя до победы
-function simulateBattle(groupA, groupB) {
+function simulateBattle(groupA, groupB, bonusA, bonusB) {
     let a = [...groupA];
     let b = [...groupB];
     let maxRounds = 1000;
+    let roundNum = 0;
 
     while (a.length > 0 && b.length > 0 && maxRounds-- > 0) {
-        const result = playRound(a, b);
+        roundNum++;
+        const result = playRound(a, b, roundNum, bonusA, bonusB);
         a = result.groupA;
         b = result.groupB;
     }
@@ -176,6 +197,15 @@ function simulateBattle(groupA, groupB) {
     else winner = 'draw';
 
     return { winner, unitsA: a, unitsB: b };
+}
+
+function readBonus(prefix) {
+    return {
+        extraDmgFirst: parseInt(document.getElementById(prefix + '-extra-dmg-first').value) || 0,
+        extraDmgEvery: parseInt(document.getElementById(prefix + '-extra-dmg-every').value) || 0,
+        extraDice: parseInt(document.getElementById(prefix + '-extra-dice').value) || 0,
+        skipDmg: parseInt(document.getElementById(prefix + '-skip-dmg').value) || 0,
+    };
 }
 
 // Считываем юнитов из селектов
@@ -191,13 +221,16 @@ function getGroups() {
         if (sel.value) groupB.push(sel.value);
     });
 
-    return { groupA, groupB };
+    const bonusA = readBonus('a');
+    const bonusB = readBonus('b');
+
+    return { groupA, groupB, bonusA, bonusB };
 }
 
 const SIMULATIONS = 100000;
 
 document.getElementById('calc-btn').addEventListener('click', () => {
-    const { groupA, groupB } = getGroups();
+    const { groupA, groupB, bonusA, bonusB } = getGroups();
     const resultDiv = document.getElementById('result');
 
     if (groupA.length === 0 && groupB.length === 0) {
@@ -226,7 +259,7 @@ document.getElementById('calc-btn').addEventListener('click', () => {
     const outcomes = {};
 
     for (let i = 0; i < SIMULATIONS; i++) {
-        const result = simulateBattle(groupA, groupB);
+        const result = simulateBattle(groupA, groupB, bonusA, bonusB);
         if (result.winner === 'a') winsA++;
         else if (result.winner === 'b') winsB++;
         else draws++;
