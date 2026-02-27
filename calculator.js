@@ -18,6 +18,7 @@ const DICE_FACES = [
 
 // Сила юнитов (для определения кто погибает первым)
 const UNIT_POWER = {
+    ship: 0,
     warrior: 1,
     horse: 2,
     elephant: 3,
@@ -86,7 +87,7 @@ function resolveGroupRoll(group, extraDice) {
     }
 
     // Считаем юнитов каждого типа в группе
-    const unitCounts = { hero: 0, warrior: 0, horse: 0, elephant: 0 };
+    const unitCounts = { ship: 0, hero: 0, warrior: 0, horse: 0, elephant: 0 };
     for (const u of group) {
         unitCounts[u]++;
     }
@@ -159,6 +160,7 @@ function removeWeakest(group, count) {
 }
 
 const UNIT_NAMES = {
+    ship: 'Корабль',
     warrior: 'Воин',
     horse: 'Конь',
     elephant: 'Слон',
